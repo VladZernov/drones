@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Workshop {
+  id        String   @id @default(cuid())
+  name      String
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  drones Drone[]
+}
+
+model Drone {
+  id          String        @id @default(cuid())
+  qrCode      String        @unique
+
+  status      DroneStatus   @default(GENERATED)
+
+  workshopId  String?
+  workshop    Workshop?     @relation(fields: [workshopId], references: [id])
+
+  batchId     String?
+  batch       Batch?        @relation(fields: [batchId], references: [id])
+
+  typeId      String?
+  type        DroneType?    @relation(fields: [typeId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Batch {
+  id        String        @id @default(cuid())
+  name      String?
+
+  status    BatchStatus   @default(CREATED)
+
+  drones    Drone[]
+
+  reports   Report[]
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model DroneType {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+
+  drones      Drone[]
+}
+
+model Report {
+  id        String   @id @default(cuid())
+
+  batchId   String
+  batch     Batch    @relation(fields: [batchId], references: [id])
+
+  content   String?   // text report
+  mediaUrl  String?   // video/photo link
+
+  createdAt DateTime @default(now())
+}
+
+enum DroneStatus {
+  GENERATED     // QR created
+  ASSEMBLED     // built
+  TESTED        // after flight test
+  PACKED        // assigned to batch
+  SHIPPED       // sent
+  DELIVERED     // received
+  REPORTED      // confirmed by report
+}
+
+enum BatchStatus {
+  CREATED
+  PACKED
+  SHIPPED
+  DELIVERED
+  REPORTED
+}
