@@ -96,6 +96,11 @@ export default function BatchesPage() {
                         </p>
 
                         <p>
+                            <strong>Name:</strong>{' '}
+                            {batch.name}
+                        </p>
+
+                        <p>
                             <strong>Drones:</strong>{' '}
                             {batch.drones.length}
                         </p>
