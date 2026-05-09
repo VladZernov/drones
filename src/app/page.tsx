@@ -34,6 +34,17 @@ export default function HomePage() {
                 </button>
             </Link>
 
+            <Link href="/batches">
+                <button
+                    style={{
+                        padding: "12px 20px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Batches
+                </button>
+            </Link>
+
             <Link href="/drones">
                 <button
                     style={{
