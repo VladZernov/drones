@@ -11,8 +11,8 @@ type Drone = {
 export default function CreateBatchPage() {
     const [drones, setDrones] = useState<Drone[]>([])
     const [loading, setLoading] = useState(false)
-
     const [error, setError] = useState('')
+    const [batchName, setBatchName] = useState('')
 
     function removeDrone(id: string) {
         setDrones((prev) =>
@@ -50,7 +50,6 @@ export default function CreateBatchPage() {
                         `/api/drone/${droneId}`
                     )
 
-                    // 🚨 Handle 404
                     if (response.status === 404) {
                         setError("Drone hasn't found")
                         return
@@ -68,15 +67,12 @@ export default function CreateBatchPage() {
                             (x) => x.id === drone.id
                         )
 
-                        if (exists) {
-                            return prev
-                        }
+                        if (exists) return prev
 
                         return [...prev, drone]
                     })
                 } catch (e) {
                     console.error(e)
-
                     setError('Invalid QR code')
                 }
             },
@@ -91,6 +87,11 @@ export default function CreateBatchPage() {
     }, [])
 
     async function confirmBatch() {
+        if (!batchName.trim()) {
+            setError('Batch name is required')
+            return
+        }
+
         setLoading(true)
 
         const response = await fetch(
@@ -102,6 +103,7 @@ export default function CreateBatchPage() {
                         'application/json',
                 },
                 body: JSON.stringify({
+                    name: batchName, // ✅ NEW
                     droneIds: drones.map(
                         (x) => x.id
                     ),
@@ -112,18 +114,34 @@ export default function CreateBatchPage() {
         setLoading(false)
 
         if (!response.ok) {
-            alert('Failed')
+            const err = await response.json()
+            alert(err.error || 'Failed')
             return
         }
 
         alert('Batch created')
 
         setDrones([])
+        setBatchName('') // reset
     }
 
     return (
         <div style={{ padding: 40 }}>
             <h1>Create Batch</h1>
+
+            <input
+                type="text"
+                placeholder="Batch name"
+                value={batchName}
+                onChange={(e) =>
+                    setBatchName(e.target.value)
+                }
+                style={{
+                    padding: 10,
+                    marginBottom: 20,
+                    width: 300,
+                }}
+            />
 
             <div
                 id="scanner"
@@ -165,11 +183,9 @@ export default function CreateBatchPage() {
                                 padding: 12,
                                 border: '1px solid #ccc',
                                 borderRadius: 8,
-
                                 backgroundColor: isValid
                                     ? '#e8ffe8'
                                     : '#ffe8e8',
-
                                 display: 'flex',
                                 justifyContent:
                                     'space-between',

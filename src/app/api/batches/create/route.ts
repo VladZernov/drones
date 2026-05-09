@@ -3,20 +3,22 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
     const body = await req.json();
 
-    const { droneIds } = body;
+    const { droneIds, name } = body;
 
     if (!droneIds || droneIds.length === 0) {
         return Response.json(
-            {
-                error: "No drones provided",
-            },
-            {
-                status: 400,
-            }
+            { error: "No drones provided" },
+            { status: 400 }
         );
     }
 
-    // Find drones
+    if (!name) {
+        return Response.json(
+            { error: "Batch name is required" },
+            { status: 400 }
+        );
+    }
+
     const drones = await prisma.drone.findMany({
         where: {
             id: {
@@ -25,10 +27,9 @@ export async function POST(req: Request) {
         },
     });
 
-    // Validation:
-    // only TESTED drones allowed
     const invalidDrones = drones.filter(
-        (drone) => drone.status !== "TESTED" ||
+        (drone) =>
+            drone.status !== "TESTED" ||
             drone.batchId !== null
     );
 
@@ -41,20 +42,17 @@ export async function POST(req: Request) {
                     status: x.status,
                 })),
             },
-            {
-                status: 400,
-            }
+            { status: 400 }
         );
     }
 
-    // Create batch
     const batch = await prisma.batch.create({
         data: {
+            name,
             status: "CREATED",
         },
     });
 
-    // Update drones
     await prisma.drone.updateMany({
         where: {
             id: {
