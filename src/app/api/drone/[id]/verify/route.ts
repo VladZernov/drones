@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/auth/options";
 
 export async function POST(
     req: Request,
@@ -7,8 +8,9 @@ export async function POST(
         params: Promise<{ id: string }>;
     }
 ) {
-    const session = await auth();
-
+    // noinspection TypeScriptValidateTypes
+    const session = await getServerSession(authOptions)
+debugger;
     if (session?.user.role !== "ADMIN") {
         return new Response("Forbidden", { status: 403 });
     }
