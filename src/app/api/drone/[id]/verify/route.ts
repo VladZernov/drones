@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function POST(
     req: Request,
@@ -6,6 +7,12 @@ export async function POST(
         params: Promise<{ id: string }>;
     }
 ) {
+    const session = await auth();
+
+    if (session?.user.role !== "ADMIN") {
+        return new Response("Forbidden", { status: 403 });
+    }
+
     const { id } = await context.params;
 
     const drone = await prisma.drone.findUnique({
