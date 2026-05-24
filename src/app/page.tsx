@@ -12,6 +12,17 @@ export default function HomePage() {
         >
             <h1>Drones Tracker</h1>
 
+            <Link href="/workshops/create">
+                <button
+                    style={{
+                        padding: "12px 20px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Create Workshop
+                </button>
+            </Link>
+
             <Link href="/drone/scan">
                 <button
                     style={{
@@ -56,16 +67,6 @@ export default function HomePage() {
                 </button>
             </Link>
 
-            <Link href="/workshops/create">
-                <button
-                    style={{
-                        padding: "12px 20px",
-                        cursor: "pointer",
-                    }}
-                >
-                    Create Workshop
-                </button>
-            </Link>
         </div>
     );
 }

@@ -1,0 +1,69 @@
+// /app/api/batches/[id]/route.ts
+
+import { prisma } from "@/lib/prisma";
+
+export async function PATCH(
+    req: Request,
+    context: {
+        params: Promise<{ id: string }>;
+    }
+) {
+    try {
+        const { id } = await context.params;
+
+        if (!id) {
+            return Response.json(
+                {
+                    error: "Missing batch id",
+                },
+                {
+                    status: 400,
+                }
+            );
+        }
+
+        const body = await req.json();
+
+        const { destination } = body;
+
+        const batch = await prisma.batch.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!batch) {
+            return Response.json(
+                {
+                    error: "Batch not found",
+                },
+                {
+                    status: 404,
+                }
+            );
+        }
+
+        const updatedBatch =
+            await prisma.batch.update({
+                where: {
+                    id,
+                },
+                data: {
+                    destination,
+                },
+            });
+
+        return Response.json(updatedBatch);
+    } catch (e) {
+        console.error(e);
+
+        return Response.json(
+            {
+                error: "Failed to update batch",
+            },
+            {
+                status: 500,
+            }
+        );
+    }
+}

@@ -2,7 +2,9 @@ import { prisma } from '@/lib/prisma'
 
 import { PDFDocument, StandardFonts } from 'pdf-lib'
 import QRCode from 'qrcode'
+
 export async function POST(req: Request) {
+    debugger;
     const body = await req.json()
     const { name, date, droneTypes } = body
     const workshop = await prisma.workshop.create({
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
         })
         if (!droneType) continue
         for (let i = 1; i <= item.count; i++) {
-            const droneId = `${droneType.name}-${Date.now()}-${i}`
+            const droneId = await generateId(droneType.name);
             const drone = await prisma.drone.create({
                 data: {
                     id: droneId,
@@ -69,4 +71,30 @@ export async function POST(req: Request) {
             'Content-Disposition': `attachment; filename="${workshop.name}.pdf"`,
         },
     })
+}
+
+export async function generateId(type: string)  {
+
+    let id = ""
+    let exists = true
+
+    // ensure uniqueness
+    while (exists) {
+        let random = '';
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+        for (let i = 0; i < 5; i++) {
+            random += chars[Math.floor(Math.random() * chars.length)]
+        }
+
+        id = `DAC-${type}-${random}`;
+
+        const found = await prisma.drone.findUnique({
+            where: { id },
+        })
+
+        exists = !!found
+    }
+
+    return id
 }
