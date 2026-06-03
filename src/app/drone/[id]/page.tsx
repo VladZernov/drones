@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import VerifyButton from "@/components/VerifyButton";
 import { authOptions } from "@/auth/options";
 import { getServerSession } from "next-auth";
+import SpecificationEditor from "@/components/SpecificationEditor";
 
 export default async function DronePage({
                                             params,
@@ -19,12 +20,14 @@ export default async function DronePage({
             workshop: true,
             batch: true,
             type: true,
+            specification: true,
         },
     });
 
     // noinspection TypeScriptValidateTypes
     const session = await getServerSession(authOptions);
     const isAdmin = session?.user?.role == "ADMIN";
+    const spec = drone.specification;
 
     if (!drone) {
         return <div>Drone not found</div>;
@@ -69,6 +72,69 @@ export default async function DronePage({
                     )}
                 </div>
             )}
+
+            {isAdmin ? (
+                <SpecificationEditor
+                    droneId={drone.id}
+                    specification={spec}
+                />
+            ) : (
+                <>
+                    {/* PUBLIC READ ONLY VIEW */}
+                    <h2>Specification</h2>
+
+                    <p>
+                        <strong>Frame:</strong>{' '}
+                        {spec?.frame ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Flight Controller:</strong>{' '}
+                        {spec?.flightController ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>ESC:</strong>{' '}
+                        {spec?.esc ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Motors:</strong>{' '}
+                        {spec?.motors ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Radio TX:</strong>{' '}
+                        {spec?.radioTx ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Video TX:</strong>{' '}
+                        {spec?.videoTx ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>GPS:</strong>{' '}
+                        {spec?.gps ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Optical Flow:</strong>{' '}
+                        {spec?.opticalFlow ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Propellers:</strong>{' '}
+                        {spec?.propellers ?? '-'}
+                    </p>
+
+                    <p>
+                        <strong>Camera:</strong>{' '}
+                        {spec?.camera ?? '-'}
+                    </p>
+                </>
+            )}
+
         </div>
     );
 }

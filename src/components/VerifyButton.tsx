@@ -39,6 +39,7 @@ export default function VerifyButton({
             style={{
                 padding: '10px 20px',
                 cursor: 'pointer',
+                'margin-top': '10px',
             }}
         >
             {loading ? 'Verifying...' : 'Verify'}

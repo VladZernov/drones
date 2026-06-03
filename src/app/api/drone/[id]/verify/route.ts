@@ -10,7 +10,7 @@ export async function POST(
 ) {
     // noinspection TypeScriptValidateTypes
     const session = await getServerSession(authOptions)
-debugger;
+
     if (session?.user.role !== "ADMIN") {
         return new Response("Forbidden", { status: 403 });
     }

@@ -1,0 +1,48 @@
+.container {
+    margin-top: 20px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.row {
+    display: contents;
+}
+
+.label {
+    font-weight: 600;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.input {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    border-radius: 4px;
+
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
+}
+
+.actions {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+}
+
+.button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid #000;
+    background: #fff;
+}
