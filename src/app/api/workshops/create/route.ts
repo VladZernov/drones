@@ -7,6 +7,21 @@ export async function POST(req: Request) {
     debugger;
     const body = await req.json()
     const { name, date, droneTypes } = body
+
+    const totalDrones = droneTypes.reduce(
+        (sum: number, item: { count: number }) => sum + item.count,
+        0
+    )
+
+    if (totalDrones === 0) {
+        return Response.json(
+            {
+                error: 'Workshop must contain at least one drone.',
+            },
+            { status: 400 }
+        )
+    }
+
     const workshop = await prisma.workshop.create({
         data: {
             name,

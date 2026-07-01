@@ -67,6 +67,28 @@ export default function HomePage() {
                 </button>
             </Link>
 
+            <Link href="/workshops">
+                <button
+                    style={{
+                        padding: "12px 20px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Workshops
+                </button>
+            </Link>
+
+            <Link href="/drone-types">
+                <button
+                    style={{
+                        padding: "12px 20px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Drone Types
+                </button>
+            </Link>
+
         </div>
     );
 }

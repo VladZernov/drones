@@ -67,3 +67,47 @@ export async function PATCH(
         );
     }
 }
+
+export async function DELETE(
+    req: Request,
+    context: { params: Promise<{ id: string }> }
+) {
+    const { id } = await context.params
+
+    const batch = await prisma.batch.findUnique({
+        where: { id },
+        include: { drones: true },
+    })
+
+    if (!batch) {
+        return Response.json(
+            { error: 'Batch not found' },
+            { status: 404 }
+        )
+    }
+
+    if (batch.status === 'REPORTED') {
+        return Response.json(
+            {
+                error: 'Cannot delete a reported batch',
+            },
+            { status: 400 }
+        )
+    }
+
+    // 1. reset drones
+    await prisma.drone.updateMany({
+        where: { batchId: id },
+        data: {
+            batchId: null,
+            status: 'TESTED',
+        },
+    })
+
+    // 2. delete batch
+    await prisma.batch.delete({
+        where: { id },
+    })
+
+    return Response.json({ success: true })
+}

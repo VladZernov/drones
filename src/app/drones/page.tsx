@@ -1,17 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 
 type Drone = {
     id: string
     status: string
+    workshopId?: string
+    workshop?: {
+        id: string
+        name: string
+    }
+}
+
+type Workshop = {
+    id: string
+    name: string
 }
 
 export default function DronesPage() {
     const [drones, setDrones] = useState<Drone[]>([])
+    const [workshops, setWorkshops] = useState<Workshop[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+
+    const [selectedWorkshop, setSelectedWorkshop] = useState<string>('all')
 
     useEffect(() => {
         async function load() {
@@ -19,15 +32,20 @@ export default function DronesPage() {
                 setLoading(true)
                 setError('')
 
-                const res = await fetch('/api/drones')
+                const [dronesRes, workshopsRes] = await Promise.all([
+                    fetch('/api/drones'),
+                    fetch('/api/workshops'),
+                ])
 
-                if (!res.ok) {
-                    throw new Error('Failed to fetch drones')
+                if (!dronesRes.ok || !workshopsRes.ok) {
+                    throw new Error('Failed to fetch data')
                 }
 
-                const data = await res.json()
+                const dronesData = await dronesRes.json()
+                const workshopsData = await workshopsRes.json()
 
-                setDrones(data)
+                setDrones(dronesData)
+                setWorkshops(workshopsData)
             } catch (e) {
                 console.error(e)
                 setError('Failed to load drones')
@@ -38,6 +56,14 @@ export default function DronesPage() {
 
         load()
     }, [])
+
+    const filteredDrones = useMemo(() => {
+        if (selectedWorkshop === 'all') return drones
+
+        return drones.filter(
+            (d) => d.workshopId === selectedWorkshop
+        )
+    }, [drones, selectedWorkshop])
 
     if (loading) {
         return <div style={{ padding: 40 }}>Loading...</div>
@@ -55,8 +81,36 @@ export default function DronesPage() {
         <div style={{ padding: 40 }}>
             <h1>All Drones</h1>
 
+            {/* FILTER */}
+            <div style={{ marginBottom: 20 }}>
+                <label style={{ marginRight: 10 }}>
+                    Filter by workshop:
+                </label>
+
+                <select
+                    value={selectedWorkshop}
+                    onChange={(e) =>
+                        setSelectedWorkshop(e.target.value)
+                    }
+                    style={{
+                        padding: 6,
+                        border: '1px solid #ccc',
+                        borderRadius: 6,
+                    }}
+                >
+                    <option value="all">All</option>
+
+                    {workshops.map((w) => (
+                        <option key={w.id} value={w.id}>
+                            {w.name}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {/* LIST */}
             <ul style={{ listStyle: 'none', padding: 0 }}>
-                {drones.map((drone) => (
+                {filteredDrones.map((drone) => (
                     <li
                         key={drone.id}
                         style={{

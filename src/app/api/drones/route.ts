@@ -5,6 +5,11 @@ export async function GET() {
         orderBy: {
             createdAt: "desc",
         },
+        where: {
+            status: {
+                not: 'GENERATED',
+            },
+        },
     });
 
     return Response.json(drones);

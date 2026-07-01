@@ -1,10 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+
 type DroneType = {
     id: string
     name: string
 }
 export default function CreateWorkshopPage() {
+    const router = useRouter();
     const [name, setName] = useState('')
     const [date, setDate] = useState('')
     const [types, setTypes] = useState<DroneType[]>([])
@@ -20,23 +23,43 @@ export default function CreateWorkshopPage() {
             .then((data) => setTypes(data))
     }, [])
     async function handleSubmit() {
-        const response = await fetch('/api/workshops/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name,
-                date,
-                droneTypes: selectedTypes,
-            }),
-        })
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${name}.pdf`
-        a.click()
+        try {
+            const response = await fetch('/api/workshops/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    date,
+                    droneTypes: selectedTypes,
+                }),
+            })
+
+            if (!response.ok) {
+                const data = await response.json()
+
+                alert(data.error ?? 'Failed to create workshop')
+                return
+            }
+
+            const blob = await response.blob()
+
+            const url = window.URL.createObjectURL(blob)
+
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${name}.pdf`
+            a.click()
+
+            window.URL.revokeObjectURL(url)
+
+
+            router.push('/workshops')
+        } catch (e) {
+            console.error(e)
+            alert('Unexpected error')
+        }
     }
     function updateCount(typeId: string, count: number) {
         setSelectedTypes((prev) => {

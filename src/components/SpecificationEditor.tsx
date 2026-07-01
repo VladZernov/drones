@@ -4,6 +4,8 @@ import { useState } from 'react';
 import styles from './specification-editor.module.css';
 
 const fields = [
+    { key: 'name', label: 'Name'},
+    { key: 'comment', label: 'Comment'},
     { key: 'frame', label: 'Frame' },
     { key: 'flightController', label: 'Flight Controller' },
     { key: 'esc', label: 'ESC' },
@@ -26,6 +28,8 @@ export default function SpecificationEditor({
     const [loading, setLoading] = useState(false)
 
     const [form, setForm] = useState({
+        name: specification?.name ?? '',
+        comment: specification?.comment ?? '',
         frame: specification?.frame ?? '',
         flightController:
             specification?.flightController ?? '',
@@ -84,7 +88,7 @@ export default function SpecificationEditor({
                             value={
                                 form[
                                     field.key as keyof typeof form
-                                    ]
+                                    ] ?? ''
                             }
                             onChange={(e) =>
                                 setForm({

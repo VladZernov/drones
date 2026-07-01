@@ -48,6 +48,9 @@ model DroneSpecification {
   droneId String @unique
   drone   Drone  @relation(fields: [droneId], references: [id], onDelete: Cascade)
 
+  name String?
+  comment String?
+
   frame            String?
   flightController String?
   esc              String?

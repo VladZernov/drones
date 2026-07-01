@@ -26,6 +26,8 @@ export async function PATCH(
                     droneId: id,
                 },
                 update: {
+                    name: body.name,
+                    comment: body.comment,
                     frame: body.frame,
                     flightController:
                     body.flightController,
@@ -42,7 +44,8 @@ export async function PATCH(
                 },
                 create: {
                     droneId: id,
-
+                    name: body.name,
+                    comment: body.comment,
                     frame: body.frame,
                     flightController:
                     body.flightController,

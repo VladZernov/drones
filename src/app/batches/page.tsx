@@ -62,6 +62,52 @@ export default function BatchesPage() {
         load()
     }, [])
 
+    useEffect(() => {
+        if (loading || batches.length === 0) {
+            return;
+        }
+
+        const hash = window.location.hash.slice(1);
+
+        if (!hash) {
+            return;
+        }
+
+        setOpenId(hash);
+
+        setTimeout(() => {
+            document.getElementById(hash)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }, 0);
+
+    }, [loading, batches]);
+
+    useEffect(() => {
+        function onHashChange() {
+            const hash = window.location.hash.slice(1);
+
+            if (!hash) {
+                return;
+            }
+
+            setOpenId(hash);
+
+            setTimeout(() => {
+                document.getElementById(hash)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                });
+            }, 0);
+        }
+
+        window.addEventListener('hashchange', onHashChange);
+
+        return () =>
+            window.removeEventListener('hashchange', onHashChange);
+    }, []);
+
     function getUniqueWorkshops(drones: Drone[]) {
         const map = new Map()
 
@@ -72,6 +118,29 @@ export default function BatchesPage() {
         })
 
         return Array.from(map.values())
+    }
+
+    async function deleteBatch(id: string) {
+        if (!confirm('Delete this batch?')) return
+
+        try {
+            setActionError('')
+
+            const res = await fetch(`/api/batches/${id}`, {
+                method: 'DELETE',
+            })
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => null)
+                throw new Error(data?.error || 'Failed to delete batch')
+            }
+
+            setBatches(prev => prev.filter(b => b.id !== id))
+
+            if (openId === id) setOpenId(null)
+        } catch (e: any) {
+            setActionError(e.message)
+        }
     }
 
     async function safePost(url: string) {
@@ -186,6 +255,7 @@ export default function BatchesPage() {
 
                     return (
                         <div
+                            id={batch.id}
                             key={batch.id}
                             style={{
                                 border: '1px solid #ccc',
@@ -377,6 +447,21 @@ export default function BatchesPage() {
                                                 }
                                             >
                                                 Report
+                                            </button>
+                                        )}
+
+                                        {batch.status !== 'REPORTED' && (
+                                            <button
+                                                onClick={() => deleteBatch(batch.id)}
+                                                style={{
+                                                    background: '#ffdddd',
+                                                    border: '1px solid #cc0000',
+                                                    color: '#900',
+                                                    padding: '6px 10px',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                Delete
                                             </button>
                                         )}
                                     </div>
