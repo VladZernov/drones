@@ -63,25 +63,21 @@ export default function BatchesPage() {
     }, [])
 
     useEffect(() => {
-        if (loading || batches.length === 0) {
-            return;
-        }
+        if (loading || batches.length === 0) return;
 
         const hash = window.location.hash.slice(1);
-
-        if (!hash) {
-            return;
-        }
+        if (!hash) return;
 
         setOpenId(hash);
 
-        setTimeout(() => {
-            document.getElementById(hash)?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                document.getElementById(hash)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                });
             });
-        }, 0);
-
+        });
     }, [loading, batches]);
 
     useEffect(() => {
