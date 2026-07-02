@@ -118,7 +118,6 @@ export default async function DronePage({
                         border: "1px solid #ccc",
                         borderRadius: 8,
                     }}
-                    open
                 >
                     <summary
                         style={{
